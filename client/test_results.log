@@ -1,0 +1,4 @@
+17.10.2024 14:42:39: Button1_Click test passed: Serial port opened and data sent.
+17.10.2024 14:42:39: Form1_FormClosing test passed: Serial port closed.
+17.10.2024 14:42:39: LoadAvailablePorts test passed: COM ports loaded.
+17.10.2024 14:42:39: StartMonitoring test initiated.

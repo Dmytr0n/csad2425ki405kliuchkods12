@@ -33,6 +33,22 @@ if not exist "%rootDir%\deploy\client_test" (
     echo Folder 'client_test' already exists in 'deploy'.
 )
 
+if exist "%destinationFolder%" (
+    echo Destination folder exists. Deleting...
+    rmdir /S /Q "%destinationFolder%"
+    echo Destination folder deleted.
+)
+
+set sourceFolder=%cd%\media\img
+set destinationFolder=%cd%\deploy\client\img
+
+if exist "%sourceFolder%" (
+    xcopy "%sourceFolder%" "%destinationFolder%" /E /I
+    echo Folder copied successfully!
+) else (
+    echo Source folder not found!
+)
+
 set clientArtifactZipPath=C:\rps_project\client_build_artifacts.zip
 set clientTestArtifactZipPath=C:\rps_project\client_test_artifacts.zip
 set serverArtifactZipPath=C:\rps_project\server_build_artifacts.zip

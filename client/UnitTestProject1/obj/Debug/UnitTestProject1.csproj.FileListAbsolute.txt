@@ -62,3 +62,80 @@ C:\main version with testing\game client\UnitTestProject1\obj\Debug\UnitTestProj
 C:\main version with testing\game client\UnitTestProject1\obj\Debug\UnitTestProject1.pdb
 C:\main version with testing\game client\UnitTestProject1\bin\Debug\NSubstitute.dll
 C:\main version with testing\game client\UnitTestProject1\bin\Debug\NSubstitute.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\UnitTestProject1.dll.config
+C:\rps_project\client\UnitTestProject1\bin\Debug\UnitTestProject1.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\UnitTestProject1.pdb
+C:\rps_project\client\UnitTestProject1\bin\Debug\Castle.Core.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\game client.exe
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\Moq.AutoMock.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\Moq.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\NonBlocking.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\NSubstitute.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Reactive.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Reactive.Windows.Forms.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.ValueTuple.dll
+C:\rps_project\client\UnitTestProject1\bin\Debug\game client.pdb
+C:\rps_project\client\UnitTestProject1\bin\Debug\game client.exe.config
+C:\rps_project\client\UnitTestProject1\bin\Debug\Castle.Core.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\Moq.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\Moq.AutoMock.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\NonBlocking.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\NSubstitute.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Reactive.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Reactive.Windows.Forms.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\rps_project\client\UnitTestProject1\bin\Debug\System.ValueTuple.xml
+C:\rps_project\client\UnitTestProject1\obj\Debug\UnitTestProject1.csproj.AssemblyReference.cache
+C:\rps_project\client\UnitTestProject1\obj\Debug\UnitTestProject1.csproj.CoreCompileInputs.cache
+C:\rps_project\client\UnitTestProject1\obj\Debug\UnitTestProject1.csproj.CopyComplete
+C:\rps_project\client\UnitTestProject1\obj\Debug\UnitTestProject1.dll
+C:\rps_project\client\UnitTestProject1\obj\Debug\UnitTestProject1.pdb
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\UnitTestProject1.dll.config
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\UnitTestProject1.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\UnitTestProject1.pdb
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Castle.Core.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\game client.exe
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Moq.AutoMock.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Moq.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\NonBlocking.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\NSubstitute.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Reactive.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Reactive.Windows.Forms.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Runtime.CompilerServices.Unsafe.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Threading.Tasks.Extensions.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.ValueTuple.dll
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\game client.pdb
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\game client.exe.config
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Castle.Core.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Moq.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\Moq.AutoMock.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\NonBlocking.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\NSubstitute.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Reactive.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Reactive.Windows.Forms.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Runtime.CompilerServices.Unsafe.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.Threading.Tasks.Extensions.xml
+C:\rps_project\client\UnitTestProject1\$buildOutputPath\System.ValueTuple.xml
+C:\rps_project\deploy\client\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\rps_project\deploy\client\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\rps_project\deploy\client\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\rps_project\deploy\client\UnitTestProject1.dll.config
+C:\rps_project\deploy\client\UnitTestProject1.dll
+C:\rps_project\deploy\client\UnitTestProject1.pdb

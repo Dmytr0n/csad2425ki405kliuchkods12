@@ -1,88 +1,40 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.IO.Ports;
-using client;
 using System;
+using game_client;
+using System.Windows.Forms;
 
-namespace unit_test_client
+
+namespace testingMenu
 {
     [TestClass]
-    public class Form1Tests
+
+    public class UnitTest1
     {
-        private Form1 form;
-        private const string LogFilePath = "test_results.log"; // Шлях до файлу логування
-
-        [TestInitialize]
-        public void Setup()
-        {
-            // Ініціалізація нового об'єкта Form1
-            form = new Form1();
-        }
-
-        private void LogResult(string message)
-        {
-            // Запис результатів у файл
-            using (StreamWriter writer = new StreamWriter(LogFilePath, true))
-            {
-                writer.WriteLine($"{DateTime.Now}: {message}");
-            }
-        }
-
+        private Form1 mainForm;
         [TestMethod]
-        public void LoadAvailablePorts_ShouldLoadPortsIntoComboBox()
-        {
-            // Act
-            form.LoadAvailablePorts();
-
-            // Assert
-            Assert.IsTrue(form.comboBox1.Items.Count > 0, "No COM ports loaded.");
-            LogResult("LoadAvailablePorts test passed: COM ports loaded.");
-        }
-
-        [TestMethod]
-        public void Button1_Click_ShouldOpenSerialPortAndSendData()
+        public void ModMenu_ShouldSetCorrectVisibility()
         {
             // Arrange
-            form.comboBox1.SelectedItem = "COM3"; // Change to a valid port on your machine
-            form.comboBox2.SelectedItem = "9600"; // Select the baud rate
+            var mainForm = new Form1();
+            mainForm.Show();  // Відображаємо форму
 
             // Act
-            form.button1_Click(null, null); // Invoke the button click
+            mainForm.ModMenu();
+            mainForm.Refresh();  // Оновлюємо для відображення змін
 
             // Assert
-            Assert.IsTrue(form.serialPort.IsOpen, "Serial port should be open after button click.");
-            LogResult("Button1_Click test passed: Serial port opened and data sent.");
-        }
+            Assert.IsFalse(mainForm.button1.Visible, "button1 should be hidden.");
+            Assert.IsFalse(mainForm.button22.Visible, "button22 should be hidden.");
+            Assert.IsFalse(mainForm.button21.Visible, "button21 should be hidden.");
+            Assert.IsFalse(mainForm.panel17.Visible, "panel17 should be hidden.");
+            Assert.IsFalse(mainForm.pictureBox15.Visible, "pictureBox15 should be hidden.");
 
-        [TestMethod]
-        public void Form1_FormClosing_ShouldClosePortIfOpen()
-        {
-            // Arrange
-            form.serialPort = new SerialPort("COM2", 9600); // Встановлюємо віртуальний COM-порт
-            form.serialPort.Open(); // Відкриваємо порт
-            form.isMonitoring = true; // Встановлюємо моніторинг
-
-            // Act
-            form.Form1_FormClosing(null, null); // Викликаємо метод закриття форми
-
-            // Assert
-            Assert.IsFalse(form.serialPort.IsOpen, "Serial port should be closed after form closing.");
-            LogResult("Form1_FormClosing test passed: Serial port closed.");
-        }
-
-        [TestMethod]
-        public void StartMonitoring_ShouldInvokeReadLine_WhenMonitoringIsTrue()
-        {
-            // Arrange
-            form.isMonitoring = true; // Set monitoring to true
-
-            // Act
-            form.StartMonitoring(); // Start monitoring
-
-            // Assert
-            // You will need to implement a way to validate the reading logic or check the UI updates.
-            // This can be tricky with actual SerialPort; consider adding a property or method in Form1 to check its state.
-            LogResult("StartMonitoring test initiated.");
+            Assert.IsTrue(mainForm.label2.Visible, "label2 should be visible.");
+            Assert.IsTrue(mainForm.panel1.Visible, "panel1 should be visible.");
+            Assert.IsTrue(mainForm.panel2.Visible, "panel2 should be visible.");
+            Assert.IsTrue(mainForm.button2.Visible, "button2 should be visible.");
+            Assert.IsTrue(mainForm.button3.Visible, "button3 should be visible.");
+            Assert.IsTrue(mainForm.button4.Visible, "button4 should be visible.");
         }
     }
 }

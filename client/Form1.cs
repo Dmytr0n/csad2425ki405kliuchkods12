@@ -375,13 +375,14 @@ namespace game_client
             string WinPlayer2f = "Player2 Win!. Player1 select scissors and Player2 select rock";
             string WinPlayer2s = "Player2 Win!. Player1 select paper and Player2 select scissors";
             string WinPlayer2t = "Player2 Win!. Player1 select rock and Player2 select paper";
-            
-            // Отримати кореневу директорію проекту
-            string projectRoot = AppDomain.CurrentDomain.BaseDirectory;
-            // Побудувати шляхи до зображень відносно кореня проекту
-            string imagePath = Path.Combine(projectRoot, "img", "rock.png");
-            string imagePath1 = Path.Combine(projectRoot, "img", "paper.png");
-            string imagePath2 = Path.Combine(projectRoot, "img", "scissors.png");
+
+            // Шлях до зображення камінь
+            string imagePath = Path.Combine(Application.StartupPath, "image", "rock.png");
+            // Шлях до зображення папір
+            string imagePath1 = Path.Combine(Application.StartupPath, "image", "paper.png");
+            // Шлях до зображення ножниці
+            string imagePath2 = Path.Combine(Application.StartupPath, "image", "scissors.png");
+
 
             // нічия якщо два гравці вибрали камінь
             if (tieRock1 == response.Trim())

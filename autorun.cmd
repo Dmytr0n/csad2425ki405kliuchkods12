@@ -81,18 +81,19 @@ set step1Status=PASSED
 echo Step 1 completed successfully. [PASSED]
 
 REM Define local directories and paths for client and server
-set projectFolder=C:\rps_project
-set clientBuildOutput=C:\rps_project\deploy\client
-set clientTestResultsPath=C:\rps_project\deploy\client_test
+set projectFolder=%cd%
+set clientBuildOutput=%projectFolder%\deploy\client
+set clientTestResultsPath=%projectFolder%\deploy\client_test
 set clientTestResultFile=%clientTestResultsPath%\test_results.trx
-set clientArtifactZipPath=C:\rps_project\client_build_artifacts.zip
-set clientTestArtifactZipPath=C:\rps_project\client_test_artifacts.zip
+set clientArtifactZipPath=%projectFolder%\client_build_artifacts.zip
+set clientTestArtifactZipPath=%projectFolder%\client_test_artifacts.zip
 
-set arduinoSketchFolder=C:\rps_project\server
+set arduinoSketchFolder=%projectFolder%\server
 set arduinoBoard=arduino:avr:uno
 set arduinoPort=COM5
-set serverOutputFolder=C:\rps_project\deploy\server
-set serverArtifactZipPath=C:\rps_project\server_build_artifacts.zip
+set serverOutputFolder=%projectFolder%\deploy\server
+set serverArtifactZipPath=%projectFolder%\server_build_artifacts.zip
+
 
 REM CLIENT SECTION
 echo ---------------------------

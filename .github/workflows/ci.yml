@@ -103,8 +103,7 @@ jobs:
 
     steps:
     - name: Run CMD script
-      run: |
-          .\run_local_build.bat
+      run: cmd /c .\run_local_build.bat
 
 
         

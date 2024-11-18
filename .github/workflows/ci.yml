@@ -98,6 +98,14 @@ jobs:
         name: arduino-build
         path: ./build
 
+  script-run:
+    runs-on: windows-latest
+
+    steps:
+    - name: Run CMD script
+      run: |
+          .\run_local_build.bat
+
 
         
 

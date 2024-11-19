@@ -118,7 +118,11 @@ jobs:
         run: |
           .\run_local_build.bat COM11 115200
 
-
+      - name: Upload script results as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: script-results
+          path: ./artefacts
 
         
 

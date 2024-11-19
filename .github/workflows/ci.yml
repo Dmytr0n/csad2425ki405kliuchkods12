@@ -52,20 +52,12 @@ jobs:
 
     - name: Build project for testing
       run: msbuild client/gameclient.sln /p:Configuration=Debug
-<<<<<<< HEAD
     
     
     - name: Copy folder
       run: |
             cmd.exe /c xcopy /E /I .\media\img .\client\UnitTestProject1\bin\Debug\img  
             
-=======
-
-    - name: Copy folder
-      run: |
-            cmd.exe /c xcopy /E /I .\media\img .\client\UnitTestProject1\bin\Debug\img  
-   
->>>>>>> 38033a648f69fd06f14ae79028ca2535dce7e232
     - name: Run tests and save results as .trx
       run: |
         dotnet test "client\UnitTestProject1\bin\Debug\UnitTestProject1.dll" --logger "trx;LogFileName=test_results.trx"
@@ -100,13 +92,13 @@ jobs:
     - name: Compile Arduino code
       run: |
         arduino-cli compile --fqbn arduino:avr:uno server/server.ino --output-dir ./build
+
     - name: Upload Arduino build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: arduino-build
         path: ./build
 
-<<<<<<< HEAD
   run-script:
       runs-on: windows-latest
       steps:
@@ -124,22 +116,18 @@ jobs:
       - name: Run CMD script
         shell: cmd
         run: |
-          .\run_local_build.bat COM5 9600
+          .\run_local_build.bat COM11 115200
+
       - name: Upload script results as artifact
         uses: actions/upload-artifact@v3
         with:
           name: script-results
           path: ./artefacts
 
-=======
-  script-run:
-    runs-on: windows-latest
+        
 
-    steps:
-    - name: Run CMD script
-      run: cmd /c .\run_local_build.bat
->>>>>>> 38033a648f69fd06f14ae79028ca2535dce7e232
-
+    
+   
 
         
 

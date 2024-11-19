@@ -336,13 +336,16 @@ if defined GITHUB_ACTIONS (
 ) else (
     echo Running locally...
     REM Request COM port and baud rate from user locally
-    set /p arduinoPort=Enter the COM port for your Arduino (e.g., COM5)  
-    set /p baudRate=Enter the baud rate for your Arduino (e.g., 9600) 
     REM Remove any extra path information (e.g., '\\.\')
-    set arduinoPort=%arduinoPort:\\.\=%  
-    echo COM port entered locally: %arduinoPort%
-    echo Baud rate entered locally: %baudRate%
+    goto Input
 )
+
+:Input
+set /p arduinoPort=Enter the COM port for your Arduino (e.g., COM5): 
+set /p baudRate=Enter the baud rate for your Arduino (e.g., 9600): 
+set arduinoPort=%arduinoPort:\\.\=%  
+echo COM port entered locally: %arduinoPort%
+echo Baud rate entered locally: %baudRate%
 
 REM Validate COM port and baud rate
 echo Trying to connect to %arduinoPort% at baud rate %baudRate%...

@@ -324,32 +324,16 @@ if %errorlevel% neq 0 (
 )
 
 REM Step 14: Request COM port from user (for local execution) or use provided COM port (for GitHub Actions)
-echo Step 14: Checking for COM port...
+echo Step 14: Checking for COM port and baud rate...
 REM Check if running in GitHub Actions
-if defined GITHUB_ACTIONS (
-    echo Running in GitHub Actions...
     REM Use the COM port and baud rate passed as environment variables (e.g., COM_PORT and BAUD_RATE)
     set "arduinoPort=%1"
     set "baudRate=%2"
     echo COM port passed: %arduinoPort%
     echo Baud rate passed: %baudRate%
-) else (
-    echo Running locally...
-    REM Request COM port and baud rate from user locally
-    REM Remove any extra path information (e.g., '\\.\')
-    goto Input
-)
-
-:Input
-set /p arduinoPort=Enter the COM port for your Arduino (e.g., COM5): 
-set /p baudRate=Enter the baud rate for your Arduino (e.g., 9600): 
-set arduinoPort=%arduinoPort:\\.\=%  
-echo COM port entered locally: %arduinoPort%
-echo Baud rate entered locally: %baudRate%
 
 REM Validate COM port and baud rate
 echo Trying to connect to %arduinoPort% at baud rate %baudRate%...
-
 REM Check if baud rate is 9600
 if not "%baudRate%"=="9600" (
     echo Error: Unsupported baud rate %baudRate%. Only 9600 is allowed.

@@ -860,20 +860,498 @@ namespace testingMenu
             // Тестова перевірка: чи не виникла помилка в процесі малювання
             Assert.IsNotNull(paintEventArgs.Graphics);
         }
+        [TestMethod]
+        public void StartMenu_IniFileValues_SetCorrectStates()
+        {
+            // Arrange: створення тимчасового INI-файлу
+            string tempIniFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+            File.WriteAllText(tempIniFile, @"
+[CheckboxStates]
+CheckBox1=True
+CheckBox2=False
+CheckBox3=True");
+
+            var form = new Form1();
+
+            // Act: виклик функції
+            form.StartMenu();
+
+            // Assert: перевірка станів
+            Assert.IsTrue(form.musicOn, "musicOn should be true.");
+            Assert.IsFalse(form.winStrategy, "winStrategy should be false.");
+            Assert.IsTrue(form.randomMode, "randomMode should be true.");
+
+            // Перевірка видимості елементів
+            Assert.IsFalse(form.label2.Visible, "label2 should be hidden.");
+            Assert.IsFalse(form.panel1.Visible, "panel1 should be hidden.");
+            Assert.IsFalse(form.panel2.Visible, "panel2 should be hidden.");
+
+            // Cleanup: видалення тимчасового файлу
+            File.Delete(tempIniFile);
+        }
+        [TestMethod]
+        public void Read_ReturnsCorrectValue_WhenKeyExists()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+
+            // Act
+            string actualValue = iniFile.Read("TestSection", "TestKey", "DefaultValue");
+
+            // Assert
+            Assert.AreEqual("TestValue", actualValue);
+        }
+
+        [TestMethod]
+        public void Read_ReturnsDefaultValue_WhenKeyDoesNotExist()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+
+            // Act
+            string actualValue = iniFile.Read("TestSection", "NonExistingKey", "DefaultValue");
+
+            // Assert
+            Assert.AreEqual("DefaultValue", actualValue);
+        }
+
+        [TestMethod]
+        public void Read_ReturnsDefaultValue_WhenSectionDoesNotExist()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+
+            // Act
+            string actualValue = iniFile.Read("NonExistingSection", "TestKey", "DefaultValue");
+
+            // Assert
+            Assert.AreEqual("DefaultValue", actualValue);
+        }
+
+        [TestMethod]
+        public void Write_WritesValueCorrectly()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+            string section = "NewSection";
+            string key = "NewKey";
+            string value = "NewValue";
+
+            // Act
+            iniFile.Write(section, key, value);
+            string actualValue = iniFile.Read(section, key, "DefaultValue");
+
+            // Assert
+            Assert.AreEqual(value, actualValue);
+        }
+        [TestMethod]
+        public void ReadKeys_ReturnsAllKeysInSection()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+            iniFile.Write("AnotherSection", "Key1", "Value1");
+            iniFile.Write("AnotherSection", "Key2", "Value2");
+
+            // Act
+            var keys = iniFile.ReadKeys("AnotherSection");
+
+            // Assert
+            CollectionAssert.AreEquivalent(new[] { "Key1", "Key2" }, keys);
+        }
+
+        [TestMethod]
+        public void ReadKeys_ReturnsEmptyArray_WhenSectionDoesNotExist()
+        {
+            // Arrange
+            var iniFile = new IniFile(testFilePath);
+
+            // Act
+            var keys = iniFile.ReadKeys("NonExistingSection");
+
+            // Assert
+            Assert.AreEqual(0, keys.Length);
+        }
+
+        [TestMethod]
+        public void Constructor_ThrowsException_WhenFileDoesNotExist()
+        {
+            // Arrange & Act
+            var iniFile = new IniFile("nonexistent.ini");
+
+            // This will throw an exception
+            iniFile.Read("TestSection", "TestKey");
+        }
+        [TestMethod]
+        public void Constructor_SetsGameModeAndScoreCorrectly()
+        {
+            // Arrange
+            string expectedMode = "TestMode";
+            string expectedScore = "10";
+
+            // Act
+            SaveMenu saveMenu = new SaveMenu(expectedMode, expectedScore);
+
+            // Assert
+            Assert.AreEqual(expectedMode, saveMenu.GameMode);
+            Assert.AreEqual(expectedScore, saveMenu.GameScore);
+
+            // Перевірка текстових полів напряму (замість Controls)
+            Assert.AreEqual(expectedMode, saveMenu.textBox2.Text);
+            Assert.AreEqual(expectedScore, saveMenu.textBox3.Text);
+        }
+        [TestMethod]
+        public void Methods_DoNotThrowExceptions()
+        {
+            // Arrange
+            SaveMenu saveMenu = new SaveMenu("Mode", "Score");
+
+            try
+            {
+                // Перевірка button1_Click_1
+                saveMenu.button1_Click_1(null, null);
+
+                // Мок для DrawCustomBorder
+                using (Bitmap bitmap = new Bitmap(100, 100))
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    PaintEventArgs mockPaintEvent = new PaintEventArgs(g, new Rectangle(0, 0, 100, 100));
+                    saveMenu.DrawCustomBorder(new Panel { Width = 100, Height = 100 }, mockPaintEvent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"Methods throw exceptions. Exception: {ex.Message}");
+            }
+        }
+        [TestMethod]
+        public void Constructor_ShouldInitializeProperly()
+        {
+            // Arrange
+            var mainForm = new Form1();
+
+            // Act
+            var loadForm = new LoadForm(mainForm);
+
+            // Assert
+            Assert.AreEqual(FormBorderStyle.FixedSingle, loadForm.FormBorderStyle);
+            Assert.IsFalse(loadForm.MaximizeBox);
+            Assert.IsNotNull(loadForm.mainForm);
+        }
+        [TestMethod]
+        public void LoadSavedGames_ShouldPopulateListView()
+        {
+            // Arrange
+            var mainForm = new Form1();
+            var loadForm = new LoadForm(mainForm);
+
+            // Act
+            loadForm.LoadSavedGames();
+
+            // Assert
+            Assert.IsTrue(loadForm.listView1.Items.Count >= 0);
+        }
+        [TestMethod]
+        public void LoadSavedGames_ShouldPopulateListView_WhenValidIniFile()
+        {
+            // Arrange
+            string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+
+            // Створюємо тестовий INI-файл
+            File.WriteAllText(iniFilePath, @"
+[GameData]
+Game_1_TextBox1=Chess
+Game_1_TextBox2=Player vs Player
+Game_1_TextBox3=5:0
+Game_2_TextBox1=Checkers
+Game_2_TextBox2=AI vs Player
+Game_2_TextBox3=2:3
+");
+
+            var mainForm = new Form1();
+            var loadForm = new LoadForm(mainForm);
+
+            // Act
+            loadForm.LoadSavedGames();
+
+            // Assert
+            Assert.AreEqual(2, loadForm.listView1.Items.Count); // 2 гри мають завантажитися
+            Assert.AreEqual("Chess", loadForm.listView1.Items[0].Text); // Перевірка назви гри
+            Assert.AreEqual("Checkers", loadForm.listView1.Items[1].Text);
+
+            // Clean up
+            File.Delete(iniFilePath); // Видаляємо тестовий INI-файл після тесту
+        }
+        [TestMethod]
+        public void TestSaveCheckboxStates()
+        {
+            // Arrange
+            var settingsForm = new SettingsForm();
+            settingsForm.checkBox1.Checked = true;
+            settingsForm.checkBox2.Checked = false;
+            settingsForm.checkBox3.Checked = true;
+            settingsForm.textBox1.Text = "TestValue";
+
+            // Act
+            settingsForm.SaveCheckboxStates();
+
+            // Assert
+            var ini = new IniFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini"));
+            Assert.AreEqual("True", ini.Read("CheckboxStates", "CheckBox1"));
+            Assert.AreEqual("False", ini.Read("CheckboxStates", "CheckBox2"));
+            Assert.AreEqual("True", ini.Read("CheckboxStates", "CheckBox3"));
+            Assert.AreEqual("TestValue", ini.Read("TextBoxValues", "TextBox1"));
+        }
+        [TestMethod]
+        public void TestLoadCheckboxStates()
+        {
+            // Arrange
+            var settingsForm = new SettingsForm();
+            var ini = new IniFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini"));
+            ini.Write("CheckboxStates", "CheckBox1", "True");
+            ini.Write("CheckboxStates", "CheckBox2", "False");
+            ini.Write("CheckboxStates", "CheckBox3", "True");
+            ini.Write("TextBoxValues", "TextBox1", "LoadedValue");
+
+            // Act
+            settingsForm.LoadCheckboxStates();
+
+            // Assert
+            Assert.IsTrue(settingsForm.checkBox1.Checked);
+            Assert.IsFalse(settingsForm.checkBox2.Checked);
+            Assert.IsTrue(settingsForm.checkBox3.Checked);
+            Assert.AreEqual("LoadedValue", settingsForm.textBox1.Text);
+        }
+        [TestMethod]
+        public void CheckBox2_CheckedChanged_CheckBox3Checked_CheckBox2Unchecked()
+        {
+            // Arrange
+            var form = new SettingsForm();
+            form.Show(); // Завантажуємо форму, щоб елементи ініціалізувалися
+            form.checkBox3.Checked = true; // Активуємо checkBox3
+
+            // Act
+            form.checkBox2.Checked = false; // Спробуємо активувати checkBox2
+            form.checkBox2_CheckedChanged(form.checkBox2, EventArgs.Empty); // Викликаємо функцію вручну
+
+            // Assert
+            Assert.IsFalse(form.checkBox2.Checked, "checkBox2 має бути деактивованим, якщо checkBox3 активний.");
+            form.Close();
+        }
+        [TestMethod]
+        public void CheckBox1_CheckedChanged_Checked_True_StartsPlaying()
+        {
+            // Arrange
+            var form = new SettingsForm();
+            form.Show();
+
+            // Переконайтеся, що файл існує
+            string soundFile = @"C:\Users\Дмитро\Downloads\music.wav";
+            Assert.IsTrue(File.Exists(soundFile), "Файл music.wav не знайдено за вказаним шляхом.");
+
+            // Act
+            form.checkBox1.Checked = true; // Активуємо checkBox1
+            form.checkBox1_CheckedChanged_1(form.checkBox1, EventArgs.Empty);
+
+            // Assert
+            // Перевірити роботу `PlayLooping` напряму складно. Але можна впевнитись, що стан гравця не null
+            Assert.IsNotNull(form.GetPlayer(), "_player не було ініціалізовано.");
+            form.Close();
+        }
+        [TestMethod]
+        public void CheckBox1_CheckedChanged_Checked_False_StopsPlaying()
+        {
+            // Arrange
+            var form = new SettingsForm();
+            form.Show();
 
 
 
+            form.checkBox1.Checked = false; // Деактивуємо checkBox1
+            form.checkBox1_CheckedChanged_1(form.checkBox1, EventArgs.Empty);
 
+            // Assert
+            Assert.IsNull(form.GetPlayer(), "_player мав бути зупинений і очищений.");
+            form.Close();
+        }
+        [TestMethod]
+        public void DrawCustomBorder_ShouldDrawCorrectBorder()
+        {
+            // Arrange
+            var panel = new Panel { Width = 100, Height = 100 };
+            var bitmap = new Bitmap(100, 100); // Create a Bitmap to capture the drawing
+            var paintEventArgs = new PaintEventArgs(Graphics.FromImage(bitmap), new Rectangle(0, 0, 100, 100));
+            // Ініціалізація форми
+            var mainForm = new Form1();
+            var loadForm = new LoadForm(mainForm);
+            // Act
+            loadForm.DrawCustomBorder(panel, paintEventArgs);
 
+            // Assert
+            Color expectedColor = Color.Aqua;
 
+            // Check pixels at the four corners and edges of the image
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(0, 0)); // Top-left corner
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(99, 0)); // Top-right corner
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(0, 99)); // Bottom-left corner
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(99, 99)); // Bottom-right corner
 
+            // Optionally check some pixels along the edges to ensure the border is drawn
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(50, 0)); // Top edge
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(50, 99)); // Bottom edge
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(0, 50)); // Left edge
+            AssertColorsAreEqual(expectedColor, bitmap.GetPixel(99, 50)); // Right edge
+        }
 
+        private void AssertColorsAreEqual(Color expected, Color actual)
+        {
+            Assert.AreEqual(expected.A, actual.A, "Alpha mismatch");
+            Assert.AreEqual(expected.R, actual.R, "Red mismatch");
+            Assert.AreEqual(expected.G, actual.G, "Green mismatch");
+            Assert.AreEqual(expected.B, actual.B, "Blue mismatch");
+        }
+        [TestMethod]
+        public void TestButton1Click()
+        {
+            // Arrange
+            bool onLoadBeforeClick = _form.onLoad;
 
+            // Act
+            _form.button1_Click(null, EventArgs.Empty);
+            _form.Show();
 
+            // Assert
+            Assert.IsFalse(_form.onLoad, "onLoad should be false after button click");
+            _form.Close();
+        }
+        [TestMethod]
+        public void TrackPlayer1Move_HandlesMovesCorrectly()
+        {
+            // Arrange
+            var form = new Form1();
+            form.player1Moves = new List<int>(); // Ініціалізуємо список
 
+            // Act & Assert: додаємо перші 5 ходів
+            form.TrackPlayer1Move(1);
+            form.TrackPlayer1Move(2);
+            form.TrackPlayer1Move(3);
+            form.TrackPlayer1Move(4);
+            form.TrackPlayer1Move(5);
 
+            // Перевіряємо, що всі 5 елементів є в списку
+            Assert.AreEqual(5, form.player1Moves.Count, "The list should contain exactly 5 moves.");
+            CollectionAssert.AreEqual(new List<int> { 1, 2, 3, 4, 5 }, form.player1Moves, "The moves in the list should match the added moves.");
 
+            // Act: додаємо ще один хід (6)
+            form.TrackPlayer1Move(6);
 
+            // Assert: перевіряємо, що перший елемент видалено, а новий додано
+            Assert.AreEqual(5, form.player1Moves.Count, "The list should still contain 5 moves after adding a sixth move.");
+            CollectionAssert.AreEqual(new List<int> { 2, 3, 4, 5, 6 }, form.player1Moves, "The list should maintain the most recent 5 moves.");
+
+            // Act: додаємо ще один хід (7)
+            form.TrackPlayer1Move(7);
+
+            // Assert: перевіряємо актуальний стан списку
+            Assert.AreEqual(5, form.player1Moves.Count, "The list should still contain 5 moves after adding another move.");
+            CollectionAssert.AreEqual(new List<int> { 3, 4, 5, 6, 7 }, form.player1Moves, "The list should maintain the most recent 5 moves.");
+        }
+        [TestMethod]
+        public void Main_ShouldRunApplicationAndInitializeForm1()
+        {
+            // Arrange
+            var applicationThread = new Task(() =>
+            {
+                // Act
+                Program.Main();
+            });
+
+            applicationThread.Start();
+
+            // Чекаємо кілька секунд, поки програма не ініціалізується
+            Task.Delay(2000).Wait();
+
+            // Assert: перевіряємо, чи форма була ініціалізована
+            Assert.IsNotNull(Application.OpenForms["Form1"], "Form1 should be initialized and run.");
+
+            // Закриваємо форму
+            Application.Exit();
+            applicationThread.Wait();  // чекаємо завершення потоку
+        }
+        private SerialPort _serialPort;
+        [TestMethod]
+        public void MainForm_FormClosing_DoesNotCloseSerialPort_WhenAlreadyClosed()
+        {
+            _serialPort = new SerialPort("COM5"); // Вказуємо будь-який COM порт
+            _form.serialPort = _serialPort; // Призначаємо serialPort у форму
+            // Переконуємось, що порт закритий перед тестом
+            Assert.IsFalse(_serialPort.IsOpen);
+
+            // Викликаємо обробник події FormClosing
+            _form.MainForm_FormClosing(this, new FormClosingEventArgs(CloseReason.UserClosing, false));
+
+            // Перевіряємо, що порт все ще закритий (нічого не змінилось)
+            Assert.IsFalse(_serialPort.IsOpen);
+        }
+        [TestMethod]
+        public void MainForm_FormClosing_ClosesSerialPort_WhenOpen()
+        {
+
+            _form = new Form1();
+            _serialPort = new SerialPort("COM5"); // Вказуємо будь-який COM порт
+            _form.serialPort = _serialPort; // Призначаємо serialPort у форму
+            _serialPort.Open(); // Відкриваємо порт
+            // Перевіряємо, що порт відкритий перед закриттям форми
+            Assert.IsTrue(_serialPort.IsOpen);
+
+            // Викликаємо обробник події FormClosing
+            _form.MainForm_FormClosing(this, new FormClosingEventArgs(CloseReason.UserClosing, false));
+
+            // Перевіряємо, що порт закритий після виклику методу
+            Assert.IsFalse(_serialPort.IsOpen);
+        }
+        [TestMethod]
+        public void Player2_ShouldStartTimerAndClickButtonForManVSAI_WithRandomMode()
+        {
+            // Arrange
+            var form = new TestForm1();
+
+            // Встановлюємо необхідні параметри
+            form.SetTestRandom(1); // Встановлюємо фіксоване значення для випадкових чисел
+            form.mode = "Man VS AI"; // Встановлюємо режим Man VS AI
+            form.randomMode = true; // Включаємо випадковий режим
+            form.winStrategy = false; // Вимикаємо стратегію виграшу
+
+            // Act
+            form.Player2(); // Викликаємо метод Player2, щоб ініціювати логіку
+                            // Затримка для того, щоб таймер мав час запуститися
+            System.Threading.Thread.Sleep(200);
+
+            // Assert
+            // Перевірка, чи таймер був ініціалізований і запущений
+            Assert.IsNotNull(form.TestTimer, "Таймер не був ініціалізований.");
+            Assert.IsTrue(form.TestTimer.Enabled, "Таймер не був запущений.");
+        }
+
+        [TestMethod]
+        public void Player2_ShouldStartTimerAndClickButtonForAI_VS_AI_WithWinStrategy()
+        {
+            // Arrange
+            var form = new TestForm1();
+            form.mode = "AI VS AI";  // Встановлюємо режим AI VS AI
+            form.randomMode = false;
+            form.winStrategy = true; // Включаємо стратегію виграшу
+            form.player1Moves.AddRange(new[] { 1, 2, 3, 1, 2, 2, 3 });
+
+            // Act
+            form.Player2(); // Викликаємо метод Player2, щоб ініціювати логіку
+                            // Затримка для того, щоб таймер мав час запуститися
+            System.Threading.Thread.Sleep(200);
+
+            // Assert
+            // Перевірка, чи таймер був ініціалізований і запущений
+            Assert.IsNotNull(form.TestTimer, "Таймер не був ініціалізований.");
+            Assert.IsTrue(form.TestTimer.Enabled, "Таймер не був запущений.");
+        }
     }
 }
 

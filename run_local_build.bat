@@ -40,6 +40,18 @@ if not exist "%rootDir%\artefacts" (
     echo Folder 'deploy' already exists.
 )
 
+if not exist "%rootDir%\deploy\test_coverage" (
+    mkdir "%rootDir%\deploy\test_coverage"
+    echo Folder 'test_coverage' created in 'deploy'.
+) else (
+    echo Folder 'test_coverage' already exists in 'deploy'.
+)
+if not exist "%rootDir%\deploy\documentation" (
+    mkdir "%rootDir%\deploy\documentation"
+    echo Folder 'documentation' created in 'deploy'.
+) else (
+    echo Folder 'documentation' already exists in 'deploy'.
+)
 set clientArtifactZipPath=%~dp0\artefacts\client_build_artifacts.zip
 set clientTestArtifactZipPath=%~dp0\artefacts\client_test_artifacts.zip
 set serverArtifactZipPath=%~dp0\artefacts\server_build_artifacts.zip
@@ -102,6 +114,8 @@ set step12Status=NOT STARTED
 set step13Status=NOT STARTED
 set step14Status=NOT STARTED
 set step15Status=NOT STARTED
+set step16Status=NOT STARTED
+set step17Status=NOT STARTED
 set step1Status=PASSED
 echo Step 1 completed successfully. [PASSED]
 
@@ -247,6 +261,90 @@ if %errorlevel% neq 0 (
 )
 echo Step 9 completed successfully. [%step9Status%]
 
+REM Step 10: Generate documentation using Doxygen
+echo Step 10: Generating documentation with Doxygen...
+
+REM Set project folder and code directory paths
+set projectFolder=%cd%
+set codeDirectory=%projectFolder%\client
+
+REM Define paths
+set doxyfilePath=%projectFolder%\deploy\documentation\Doxyfile
+set doxyOutputFolder=%projectFolder%\deploy\documentation\docs
+
+REM Check if Doxyfile exists
+if not exist "%doxyfilePath%" (
+    echo Doxyfile not found. Creating a default Doxyfile...
+
+    REM Generate a default Doxyfile
+    doxygen -g "%doxyfilePath%"
+    if errorlevel 1 (
+        echo Error: Failed to create default Doxyfile. Please check permissions and try again.
+        set step10Status=FAILED
+        goto FinalReport
+    ) else (
+        echo Default Doxyfile created at %doxyfilePath%.
+    )
+)
+
+REM Modify Doxyfile to include project-specific paths
+echo Configuring Doxyfile...
+
+REM Ensure the output directory exists
+if not exist "%doxyOutputFolder%" (
+    mkdir "%doxyOutputFolder%"
+    echo Output folder created: %doxyOutputFolder%.
+) else (
+    echo Output folder already exists: %doxyOutputFolder%.
+)
+
+REM Configure the Doxyfile with necessary settings
+(
+    for /f "tokens=1,* delims== " %%A in ('type "%doxyfilePath%"') do (
+        if /i "%%A"=="OUTPUT_DIRECTORY" (
+            echo OUTPUT_DIRECTORY = %doxyOutputFolder%
+        ) else if /i "%%A"=="INPUT" (
+            echo INPUT = %codeDirectory%
+        ) else if /i "%%A"=="FILE_PATTERNS" (
+            echo FILE_PATTERNS = *.cs
+        ) else if /i "%%A"=="EXTRACT_ALL" (
+            echo EXTRACT_ALL = YES
+        ) else if /i "%%A"=="GENERATE_LATEX" (
+            echo GENERATE_LATEX = NO  REM Disable LaTeX generation to avoid issues with epstopdf
+        ) else if /i "%%A"=="USE_PLMU" (
+            echo USE_PLMU = YES  REM Enable PlantUML support
+        ) else if /i "%%A"=="IMAGE_PATH" (
+            echo IMAGE_PATH = media\doc_img  REM Relative path to the image directory
+        ) else (
+            echo %%A=%%B
+        )
+    )
+) > "%doxyfilePath%.tmp"
+
+REM Replace original Doxyfile with updated version
+move /Y "%doxyfilePath%.tmp" "%doxyfilePath%"
+if errorlevel 1 (
+    echo Error: Failed to update Doxyfile.
+    set step10Status=FAILED
+    goto FinalReport
+) else (
+    echo Doxyfile configured successfully.
+)
+
+REM Run Doxygen to generate documentation
+echo Running Doxygen...
+doxygen "%doxyfilePath%"
+if errorlevel 1 (
+    echo Error: Doxygen failed to generate documentation. Check the configuration and try again.
+    set step10Status=FAILED
+    goto FinalReport
+) else (
+    echo Documentation generated successfully in %doxyOutputFolder%.
+    set step10Status=PASSED
+)
+
+REM Step 10 completed successfully.
+echo Step 10 completed successfully. [PASSED]
 
 REM Client report
 echo.
@@ -260,54 +358,104 @@ echo Artifact Zip Path: "%clientArtifactZipPath%"
 echo Client Test Artifact Zip Path: "%clientTestArtifactZipPath%"
 echo ---------------------------
 
+REM Step 11: Run Unit Test Coverage
+echo Step 11: Running Unit Test Coverage...
+REM Define relative paths for coverage tools
+set OpenCoverPath=.\Tools\OpenCover
+set ReportGeneratorPath=.\Tools\ReportGenerator\net47
+set TestRunnerPath="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+set TestAssembly=.\deploy\client\UnitTestProject1.dll
+set CoverageOutput=.\deploy\test_coverage\coverage.xml
+set ReportOutput=.\deploy\test_coverage\coverage-report
+
+
+REM Run tests with OpenCover for code coverage
+"%OpenCoverPath%\OpenCover.Console.exe" -register:user -target:%TestRunnerPath% -targetargs:"%TestAssembly%" -output:%CoverageOutput% -filter:"+[*]* -[game_client.Properties.Resources]*"
+
+REM Generate HTML report from coverage
+"%ReportGeneratorPath%\ReportGenerator.exe" -reports:%CoverageOutput% -targetdir:%ReportOutput% -reporttypes:Html
+
+REM Check if the coverage report generation was successful
+if %errorlevel% neq 0 (
+    echo Error: Failed to generate coverage report.
+    set step11Status=FAILED
+    goto FinalReport
+) else (
+    echo Code coverage report generated successfully.
+    set step11Status=PASSED
+    echo Step 11 completed successfully. [PASSED]
+)
+
+REM Extract overall coverage percentage from coverage.xml
+for /f "tokens=3 delims== " %%i in ('findstr /i "summary numSequencePoints" "%CoverageOutput%"') do (
+    set totalCoverage=%%i
+)
+
+REM Clean up extracted value
+set totalCoverage=%totalCoverage:"=%
+set totalCoverage=%totalCoverage:%%=%
+echo.
+
+REM SERVER SECTION - COVERAGE SUMMARY
+echo ---------------------------
+echo COVERAGE SUMMARY
+echo ---------------------------
+echo Overall Code Coverage: %totalCoverage% %
+echo Coverage Output File: "%CoverageOutput%"
+echo Report Output Folder: "%ReportOutput%"
+echo ---------------------------
+
+echo.
+
+
 REM SERVER SECTION
 echo ---------------------------
 echo SERVER BUILD AND UPLOAD START
 echo ---------------------------
 
-REM Step 10: Verify Arduino CLI installation
-echo Step 10: Verifying Arduino CLI installation...
+REM Step 12: Verify Arduino CLI installation
+echo Step 12: Verifying Arduino CLI installation...
 arduino-cli version >nul 2>&1
 if %errorlevel% neq 0 (
     echo Error: Arduino CLI is not installed. Please install it first.
-    set step10Status=FAILED
-    goto FinalReport
-) else (
-    echo Arduino CLI installed successfully.
-    set step10Status=PASSED
-    echo Step 10 completed successfully. [PASSED]
-)
-
-REM Step 11: Install board definitions
-echo Step 11: Installing board definitions...
-arduino-cli core update-index >nul 2>&1
-arduino-cli core install arduino:avr >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Error: Failed to install board definitions for "%arduinoBoard%".
-    set step11Status=FAILED
-    goto FinalReport
-) else (
-    echo Board definitions installed successfully.
-    set step11Status=PASSED
-    echo Step 11 completed successfully. [PASSED]
-)
-
-
-REM Step 12: Compile the Arduino sketch
-echo Step 12: Compiling Arduino sketch...
-arduino-cli compile -b arduino:avr:uno --output-dir %serverOutputFolder% %arduinoSketchFolder%\server.ino >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Error: Failed to compile Arduino sketch.
     set step12Status=FAILED
     goto FinalReport
 ) else (
-    echo Arduino sketch compiled successfully and saved to "%serverOutputFolder%".
+    echo Arduino CLI installed successfully.
     set step12Status=PASSED
     echo Step 12 completed successfully. [PASSED]
 )
 
-REM Step 13: Archive server build artifacts
-echo Step 13: Creating server build artifact archive...
+REM Step 13: Install board definitions
+echo Step 13: Installing board definitions...
+arduino-cli core update-index >nul 2>&1
+arduino-cli core install arduino:avr >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Error: Failed to install board definitions for "%arduinoBoard%".
+    set step13Status=FAILED
+    goto FinalReport
+) else (
+    echo Board definitions installed successfully.
+    set step13Status=PASSED
+    echo Step 13 completed successfully. [PASSED]
+)
+
+
+REM Step 14: Compile the Arduino sketch
+echo Step 14: Compiling Arduino sketch...
+arduino-cli compile -b arduino:avr:uno --output-dir %serverOutputFolder% %arduinoSketchFolder%\server.ino >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Error: Failed to compile Arduino sketch.
+    set step14Status=FAILED
+    goto FinalReport
+) else (
+    echo Arduino sketch compiled successfully and saved to "%serverOutputFolder%".
+    set step14Status=PASSED
+    echo Step 14 completed successfully. [PASSED]
+)
+
+REM Step 15: Archive server build artifacts
+echo Step 15: Creating server build artifact archive...
 
 REM Create archive using PowerShell
 powershell -Command "Compress-Archive -Path %serverOutputFolder% -DestinationPath %serverArtifactZipPath%"
@@ -315,16 +463,16 @@ powershell -Command "Compress-Archive -Path %serverOutputFolder% -DestinationPat
 REM Check if archiving was successful
 if %errorlevel% neq 0 (
     echo Error: Failed to create server build artifact archive.
-    set step13Status=FAILED
+    set step15Status=FAILED
     goto FinalReport
 ) else (
     echo Server build artifacts saved at: %serverArtifactZipPath%.
-    set step13Status=PASSED
-    echo Step 13 completed successfully. [PASSED]
+    set step15Status=PASSED
+    echo Step 15 completed successfully. [PASSED]
 )
 
-REM Step 14: Request COM port from user (for local execution) or use provided COM port (for GitHub Actions)
-echo Step 14: Checking for COM port and baud rate...
+REM Step 16: Request COM port from user (for local execution) or use provided COM port (for GitHub Actions)
+echo Step 16: Checking for COM port and baud rate...
 REM Check if running in GitHub Actions
     REM Use the COM port and baud rate passed as environment variables (e.g., COM_PORT and BAUD_RATE)
     set "arduinoPort=%1"
@@ -337,7 +485,7 @@ echo Trying to connect to %arduinoPort% at baud rate %baudRate%...
 REM Check if baud rate is 9600
 if not "%baudRate%"=="9600" (
     echo Error: Unsupported baud rate %baudRate%. Only 9600 is allowed.
-    set step14Status=FAILED
+    set step16Status=FAILED
     goto FinalReport
 )
 
@@ -345,28 +493,28 @@ REM Check if the entered port exists (validate by checking if COM port is availa
 mode %arduinoPort% >nul 2>&1
 if %errorlevel% neq 0 (
     echo Error: Failed to connect to %arduinoPort%. The port may not exist or be available.
-    set step14Status=FAILED
+    set step16Status=FAILED
     goto FinalReport
 )
 
 REM If all checks pass
 echo COM port %arduinoPort% connected successfully at baud rate %baudRate%.
-set step14Status=PASSED
-echo Step 14 completed successfully. [PASSED]
+set step16Status=PASSED
+echo Step 16 completed successfully. [PASSED]
 
-REM Step 15: Upload firmware to Arduino board
-echo Step 15: Uploading firmware to Arduino board...
+REM Step 17: Upload firmware to Arduino board
+echo Step 17: Uploading firmware to Arduino board...
 arduino-cli upload -p "%arduinoPort%" -b arduino:avr:uno --input-dir %serverOutputFolder%
 
 REM Check if the upload was successful
 if %errorlevel% neq 0 (
     echo Error: Failed to upload firmware to Arduino on port %arduinoPort%.
-    set step15Status=FAILED
+    set step16Status=FAILED
     goto FinalReport
 ) else (
     echo Firmware uploaded successfully to "%arduinoPort%".
-    set step15Status=PASSED
-    echo Step 15 completed successfully. [PASSED]
+    set step16Status=PASSED
+    echo Step 16 completed successfully. [PASSED]
 )
 
 REM Server report
@@ -431,17 +579,21 @@ echo   8    Check test results                   %step8Status%
 echo =========================================================
 echo   9    Archive client test artifacts        %step9Status%
 echo =========================================================
-echo  10    Verify Arduino CLI installation      %step10Status%
+echo  10    Generate documentation using Doxygen %step10Status%
 echo =========================================================
-echo  11    Install board definitions            %step11Status%
+echo  11    Run Unit Test Coverage               %step11Status%
 echo =========================================================
-echo  12    Compile Arduino sketch               %step12Status%
+echo  12    Verify Arduino CLI installation      %step12Status%
 echo =========================================================
-echo  13    Archive server build artifacts       %step13Status%
+echo  13    Install board definitions            %step13Status%
 echo =========================================================
-echo  14    Request COM port and baud rate       %step14Status%
+echo  14    Compile Arduino sketch               %step14Status%
 echo =========================================================
-echo  15    Upload firmware to Arduino           %step15Status%
+echo  15    Archive server build artifacts       %step15Status%
+echo =========================================================
+echo  16    Request COM port and baud rate       %step16Status%
+echo =========================================================
+echo  17    Upload firmware to Arduino           %step17Status%
 echo =========================================================
 echo ---------------------------------------------------------
 echo All tasks completed successfully on %date% at %time%
@@ -474,12 +626,14 @@ echo ^<tr^>^<td^>6^</td^>^<td^>Archive client build artifacts^</td^>^<td^>%step6
 echo ^<tr^>^<td^>7^</td^>^<td^>Run client tests^</td^>^<td^>%step7Status%^</td^>^</tr^>
 echo ^<tr^>^<td^>8^</td^>^<td^>Check test results^</td^>^<td^>%step8Status%^</td^>^</tr^>
 echo ^<tr^>^<td^>9^</td^>^<td^>Archive client test artifacts^</td^>^<td^>%step9Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>10^</td^>^<td^>Verify Arduino CLI installation^</td^>^<td^>%step10Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>11^</td^>^<td^>Install board definitions^</td^>^<td^>%step11Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>12^</td^>^<td^>Compile Arduino sketch^</td^>^<td^>%step12Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>13^</td^>^<td^>Archive server build artifacts^</td^>^<td^>%step13Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>14^</td^>^<td^>Request COM port and baud rate^</td^>^<td^>%step14Status%^</td^>^</tr^>
-echo ^<tr^>^<td^>15^</td^>^<td^>Upload firmware to Arduino^</td^>^<td^>%step15Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>10^</td^>^<td^>Generate documentation using Doxygen^</td^>^<td^>%step10Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>11^</td^>^<td^>Run Unit Test Coverage^</td^>^<td^>%step11Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>12^</td^>^<td^>Verify Arduino CLI installation^</td^>^<td^>%step12Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>13^</td^>^<td^>Install board definitions^</td^>^<td^>%step13Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>14^</td^>^<td^>Compile Arduino sketch^</td^>^<td^>%step14Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>15^</td^>^<td^>Archive server build artifacts^</td^>^<td^>%step15Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>16^</td^>^<td^>Request COM port and baud rate^</td^>^<td^>%step16Status%^</td^>^</tr^>
+echo ^<tr^>^<td^>17^</td^>^<td^>Upload firmware to Arduino^</td^>^<td^>%step17Status%^</td^>^</tr^>
 
 echo ^</table^>
 echo ^</body^>

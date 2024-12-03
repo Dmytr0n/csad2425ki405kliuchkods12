@@ -225,6 +225,7 @@ dotnet test deploy\client\UnitTestProject1.dll --logger "trx;LogFileName=%client
 if %errorlevel% neq 0 (
     echo Client tests failed.
     set step7Status=FAILED
+    goto FinalReport
 ) else (
     echo Client tests completed successfully.
     set step7Status=PASSED
@@ -356,16 +357,13 @@ echo Test Status: %clientTestsStatus%
 echo Artifact Zip Path: "%clientArtifactZipPath%"
 echo Client Test Artifact Zip Path: "%clientTestArtifactZipPath%"
 echo ---------------------------
-if defined GITHUB_ACTIONS (
-    echo Running in GitHub Actions...
-    goto F
-)
+
 REM Step 11: Run Unit Test Coverage
 echo Step 11: Running Unit Test Coverage...
 REM Define relative paths for coverage tools
 set OpenCoverPath=.\Tools\OpenCover
 set ReportGeneratorPath=.\Tools\ReportGenerator\net47
-set TestRunnerPath="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
+set TestRunnerPath="vstest.console.exe"
 set TestAssembly=.\deploy\client\UnitTestProject1.dll
 set CoverageOutput=.\deploy\test_coverage\coverage.xml
 set ReportOutput=.\deploy\test_coverage\coverage-report
@@ -381,6 +379,7 @@ REM Check if the coverage report generation was successful
 if %errorlevel% neq 0 (
     echo Error: Failed to generate coverage report.
     set step11Status=FAILED
+    goto FinalReport
 ) else (
     echo Code coverage report generated successfully.
     set step11Status=PASSED
@@ -408,7 +407,7 @@ echo ---------------------------
 
 echo.
 
-:F
+
 REM SERVER SECTION
 echo ---------------------------
 echo SERVER BUILD AND UPLOAD START

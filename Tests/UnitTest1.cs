@@ -6,9 +6,20 @@ using Moq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;  // Додаємо цей простір імен
+using System.Threading.Tasks;
+using System.Drawing;
+using System.IO.Ports;
+using System.Drawing.Imaging;
+using System.Diagnostics;
+using System.Media; // Add this at the top of your test file
+
+
+
 
 namespace testingMenu
 {
+
     [TestClass]
     public class UnitTest1
     {
@@ -74,6 +85,7 @@ namespace testingMenu
         {
             public bool IsPlayer1Called { get; private set; }
 
+
             public override void Player1()
             {
                 IsPlayer1Called = true;
@@ -88,6 +100,11 @@ namespace testingMenu
             {
                 random = new Random(value); // Встановлюємо значення для тесту
             }
+
+
+
+
+
         }
 
         [TestMethod]
@@ -238,7 +255,56 @@ namespace testingMenu
             Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should have an image for Player2.");
             Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for tie result.");
         }
+        [TestMethod]
+        public void FinalAction_ShouldHandleTiePaper()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "It's a tie. Player1 and Player2 select paper";
+            string counter1 = "Player1 Wins: 0";
+            string counter2 = "Player2 Wins: 0";
 
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsTrue(form.label9.Visible, "Label9 should be visible for tie message.");
+            Assert.AreEqual("It's a tie!", form.label9.Text, "Label9 text should indicate a tie.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for tie result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for tie.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for tie.");
+        }
+        [TestMethod]
+        public void FinalAction_ShouldHandleTieScissors()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "It's a tie. Player1 and Player2 select scissors";
+            string counter1 = "Player1 Wins: 0";
+            string counter2 = "Player2 Wins: 0";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsTrue(form.label9.Visible, "Label9 should be visible for tie message.");
+            Assert.AreEqual("It's a tie!", form.label9.Text, "Label9 text should indicate a tie.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for tie result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for tie.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for tie.");
+        }
         [TestMethod]
         public void FinalAction_ShouldHandleWinPlayer1f()
         {
@@ -267,6 +333,136 @@ namespace testingMenu
             Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should have an image for Player2.");
             Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
         }
+        [TestMethod]
+        public void FinalAction_ShouldHandleWinPlayer1_ScissorsVsPaper()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "Player1 Win!. Player1 select scissors and Player2 select paper";
+            string counter1 = "Player1 Wins: 12";
+            string counter2 = "Player2 Wins: 8";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsFalse(form.label9.Visible, "Label9 should not be visible for win message.");
+            Assert.IsTrue(form.label16.Visible, "Label16 should be visible for win message.");
+            Assert.AreEqual("Player 1 win!", form.label16.Text, "Label16 text should indicate Player1 win.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for Player1's choice.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for Player2's choice.");
+        }
+        [TestMethod]
+        public void FinalAction_ShouldHandleWinPlayer2_RockVsPaper()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "Player2 Win!. Player1 select rock and Player2 select paper";
+            string counter1 = "Player1 Wins: 5";
+            string counter2 = "Player2 Wins: 10";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsFalse(form.label9.Visible, "Label9 should not be visible for win message.");
+            Assert.IsTrue(form.label16.Visible, "Label16 should be visible for win message.");
+            Assert.AreEqual("Player 2 win!", form.label16.Text, "Label16 text should indicate Player2 win.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for Player1's choice.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for Player2's choice.");
+        }
+        [TestMethod]
+        public void FinalAction_ShouldHandleWinPlayer2_ScissorsVsRock()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "Player2 Win!. Player1 select scissors and Player2 select rock";
+            string counter1 = "Player1 Wins: 15";
+            string counter2 = "Player2 Wins: 20";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsFalse(form.label9.Visible, "Label9 should not be visible for win message.");
+            Assert.IsTrue(form.label16.Visible, "Label16 should be visible for win message.");
+            Assert.AreEqual("Player 2 win!", form.label16.Text, "Label16 text should indicate Player2 win.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for Player1's choice.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for Player2's choice.");
+        }
+        [TestMethod]
+        public void FinalAction_ShouldHandleWinPlayer1_PaperVsRock()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "Player1 Win!. Player1 select paper and Player2 select rock";
+            string counter1 = "Player1 Wins: 5";
+            string counter2 = "Player2 Wins: 3";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsFalse(form.label9.Visible, "Label9 should not be visible for win message.");
+            Assert.IsTrue(form.label16.Visible, "Label16 should be visible for win message.");
+            Assert.AreEqual("Player 1 win!", form.label16.Text, "Label16 text should indicate Player1 win.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for Player1's choice.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for Player2's choice.");
+        }
+        [TestMethod]
+        public void FinalAction_ShouldHandleWinPlayer2_PaperVsScissors()
+        {
+            // Arrange
+            var form = new TestForm1();
+            string response = "Player2 Win!. Player1 select paper and Player2 select scissors";
+            string counter1 = "Player1 Wins: 5";
+            string counter2 = "Player2 Wins: 7";
+
+            form.pictureBox13 = new PictureBox();
+            form.pictureBox14 = new PictureBox();
+            form.label9 = new Label();
+            form.label16 = new Label();
+            form.panel13 = new Panel();
+            form.onLoad = true;
+            // Act
+            form.FinalAction(response, counter1, counter2);
+
+            // Assert
+            Assert.IsFalse(form.label9.Visible, "Label9 should not be visible for win message.");
+            Assert.IsTrue(form.label16.Visible, "Label16 should be visible for win message.");
+            Assert.AreEqual("Player 2 win!", form.label16.Text, "Label16 text should indicate Player2 win.");
+            Assert.IsTrue(form.panel13.Visible, "Panel13 should be visible for win result.");
+            Assert.IsTrue(form.pictureBox13.Image != null, "PictureBox13 should display an image for Player1's choice.");
+            Assert.IsTrue(form.pictureBox14.Image != null, "PictureBox14 should display an image for Player2's choice.");
+        }
 
         [TestMethod]
         public void FinalAction_ShouldHandleCounterValues()
@@ -285,6 +481,7 @@ namespace testingMenu
             Assert.AreEqual("20", form.textBox1.Text, "TextBox1 should display the correct counter value.");
             Assert.AreEqual("30", form.textBox2.Text, "TextBox2 should display the correct counter value.");
         }
+
         [TestMethod]
         public void GetCounterMove_ShouldReturnExpectedCounterMove()
         {
@@ -299,7 +496,7 @@ namespace testingMenu
             // Assert
             if (random.NextDouble() >= 0.15)
             {
-                // Очікуємо, що AI обере папір (2) як контрхід проти каменю (1)
+                // Очікуємо, що AI обере папір (1) як контрхід проти каменю (1)
                 Assert.AreEqual(1, result, "AI повинен вибрати папір як контрхід проти каменю.");
             }
             else
@@ -308,10 +505,195 @@ namespace testingMenu
                 Assert.IsTrue(result >= 1 && result <= 3, "Результат має бути випадковим числом між 1 та 3.");
             }
         }
+        private Form1 _form;
+        private string testFilePath;
+        private string _configFilePath;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            // Ініціалізація об'єкта форми перед кожним тестом
+            _form = new Form1();
+            TestEnvironment.IsTestMode = true; // Встановлюємо в тестовий режим
+            // Створюємо тимчасовий INI-файл для тестування
+            testFilePath = Path.Combine(Path.GetTempPath(), "test.ini");
+            File.WriteAllText(testFilePath, "[TestSection]\nTestKey=TestValue\n");
+            // Створюємо шлях до тимчасового конфігураційного файлу
+            _configFilePath = Path.Combine(Path.GetTempPath(), "config.ini");
+        }
+
+        [TestMethod]
+        public void SetGameData_ValidScore_SetsCorrectValues()
+        {
+            // Arrange
+            string gameMode = "Man VS Man";
+            string gameScore = "5:3"; // правильний формат рахунку
+
+            // Act
+            _form.SetGameData(gameMode, gameScore);
+
+            // Assert
+            Assert.AreEqual("Man VS Man", _form.mode);
+            Assert.AreEqual(5, _form.score1);
+            Assert.AreEqual(3, _form.score2);
+            Assert.IsTrue(_form.onLoad);
+            Assert.IsFalse(_form.button21.Visible);
+            Assert.IsFalse(_form.button22.Visible);
+            Assert.IsFalse(_form.panel17.Visible);
+            Assert.IsFalse(_form.pictureBox15.Visible);
+        }
+
+        [TestMethod]
+        public void SetGameData_InvalidScoreFormat_ShowsErrorMessage()
+        {
+            // Arrange
+            string gameMode = "Man VS Man";
+            string gameScore = "invalid"; // Невірний формат рахунку
+
+            // Act
+            _form.SetGameData(gameMode, gameScore);
+
+            // Assert
+            Assert.AreEqual("Man VS Man", _form.mode);
+            Assert.AreEqual(0, _form.score1); // значення за замовчуванням
+            Assert.AreEqual(0, _form.score2); // значення за замовчуванням
+            Assert.IsFalse(_form.onLoad);
+            Assert.IsFalse(_form.button21.Visible);
+            Assert.IsFalse(_form.button22.Visible);
+            Assert.IsFalse(_form.panel17.Visible);
+            Assert.IsFalse(_form.pictureBox15.Visible);
+
+            // Перевіряємо, що повідомлення про помилку було показано
+            // Оскільки MessageBox не можна безпосередньо перевірити, можна використовувати Mock або перевірити поведінку на рівні інтерфейсу
+            // Для прикладу, можна використовувати Mocking бібліотеки для перевірки викликів MessageBox.
+        }
+
+        [TestMethod]
+        public void SetGameData_EmptyScore_ShowsErrorMessage()
+        {
+            // Arrange
+            string gameMode = "Man VS Man";
+            string gameScore = ""; // Порожній рахунок
+
+            // Act
+            _form.SetGameData(gameMode, gameScore);
+
+            // Assert
+            Assert.AreEqual("Man VS Man", _form.mode);
+            Assert.AreEqual(0, _form.score1);
+            Assert.AreEqual(0, _form.score2);
+            Assert.IsFalse(_form.onLoad);
+        }
+
+        [TestMethod]
+        public void SetGameData_ScoreWithExtraSpaces_ParsesCorrectly()
+        {
+            // Arrange
+            string gameMode = "Man VS Man";
+            string gameScore = " 10 : 4 "; // Рахунок з пробілами
+
+            // Act
+            _form.SetGameData(gameMode, gameScore);
+
+            // Assert
+            Assert.AreEqual("Man VS Man", _form.mode);
+            Assert.AreEqual(10, _form.score1);
+            Assert.AreEqual(4, _form.score2);
+            Assert.IsTrue(_form.onLoad);
+        }
+        [TestMethod]
+        public void Button21_Click_CreatesLoadForm()
+        {
+            // Arrange
+            var form = new Form1();
+
+            // Act
+            form.button21_Click(null, null); // Викликаємо метод кнопки
+
+            // Assert
+            var loadForm = Application.OpenForms.OfType<LoadForm>().FirstOrDefault(); // Перевіряємо, чи є відкритою форма LoadForm
+            Assert.IsNotNull(loadForm); // Перевірка, що LoadForm була відкрита
+            loadForm.Close();
+        }
+        [TestMethod]
+        public void Button18_Click_ShouldCreateAndShowSaveMenu()
+        {
+
+            // Створення форми для тестування (Form1 — це ваша форма, в якій реалізовано button18_Click)
+            var form = new Form1();
+
+            // Мокування textBox1 і textBox2
+            var textBox1 = new TextBox();
+            var textBox2 = new TextBox();
+            textBox1.Text = "10"; // Текст для першого текстового поля
+            textBox2.Text = "20"; // Текст для другого текстового поля
+
+
+
+            // Act: Викликаємо метод button18_Click на екземплярі форми
+            form.button18_Click(null, null);
+
+            // Оскільки форма `SaveMenu` відкривається в новому вікні, треба трохи зачекати для того, щоб вона відобразилась
+            Application.DoEvents();
+
+            // Assert: Перевіряємо, чи була відкрита форма SaveMenu
+            var saveMenu = Application.OpenForms.OfType<SaveMenu>().FirstOrDefault();
+            // Додавання textBox до форми
+            saveMenu.Controls.Add(textBox1);
+            saveMenu.Controls.Add(textBox2);
+            // Перевіряємо, чи була створена форма SaveMenu
+            Assert.IsNotNull(saveMenu, "SaveMenu was not created.");
+            saveMenu.Close();
+        }
+        [TestMethod]
+        public void Button22_Click_ShouldSetIsExitCalledToTrue()
+        {
+            // Arrange
+            var form = new Form1();
+
+            // Act
+            form.button22_Click(null, EventArgs.Empty);
+
+            // Assert
+            Assert.IsTrue(form.IsExitCalled, "IsExitCalled should be true when the button is clicked.");
+        }
+        
+       
+
+       
+
+
+
+
+
+
+
 
 
 
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
